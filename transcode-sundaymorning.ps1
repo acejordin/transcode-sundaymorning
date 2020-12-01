@@ -35,8 +35,11 @@ Foreach-Object {
     #uncomment these out when sure copy/script is good
     #Remove-Item $_.FullName #delete the .ts file
     #Remove-Item $outputFileName #delete the local .m4v file
+    #rename them until we start to delete them
+    Rename-Item $_.FullName ($_.FullName + '.old')
+    Rename-Item $outputFileName ($outputFileName + '.old')
 
-    break
+    break #just do one file for now
 
     #TODO log handbrakecli output to txt file
     #better comment script
