@@ -1,8 +1,9 @@
 Write-Host "Staring transcode-sundaymorning.ps1..."
 $path = 'C:\Users\acejo\Videos\TV\CBS Sunday Morning (1979)'
 $cmd = './HandBrakeCLI.exe'
-$inFileArg = ''
-$outFileArg = ''
+$destinationFolder = 'T:\tv\CBS Sunday Morning (1979)'
+$LogFileName = 'transcode-sundaymorning-' + (Get-Date -UFormat "%Y-%m-%d").tostring() + '.log'
+#Write-Host $LogFileName
 
 Get-ChildItem $path -Filter *.ts -Recurse | 
 Foreach-Object {
@@ -10,16 +11,23 @@ Foreach-Object {
     #Write-Host $_.FullName
     #Write-Host $_.Name
     #Write-Host $_.DirectoryName
+    $outputFileName = $($_.DirectoryName) + '\' + $($_.BaseName) + '-1.m4v'
+    Write-Host $_.Directory.Name
+    $destinationFolder = Join-Path -Path $destinationFolder -ChildPath $_.Directory.Name
+    Write-Host $destinationFolder
+    #--% is muy importante, see README.md
+    #Write-Host $cmd '--%' '--preset-import-file preset.json' '-v' '-Z "sundaymorning"' '-a 2' '-i' "`"$($_.FullName)`"" '-o' "`"$outputFileName`""
+    & $cmd --preset-import-file preset.json -Z sundaymorning -a 2 -i "$($_.FullName)" -o "$outputFileName" >> $LogFileName
+    Write-Host $?
+    Copy-Item -Path 'C:\Users\acejo\repos\transcode-sundaymorning\help.txt' -Destination 'C:\Users\acejo\repos\transcode-sundaymorning\help2.txt' #Copy-Item -Path $outputFileName -Destination $destinationFolder
+    if ($?) #Copy-Item was true
+    {
 
-    #& $cmd '--preset-import-gui' "--preset `"Custom Presets/Fast 1080p30 H.265`"" '-i' "'$($_.FullName)'" '-o' "'$($_.DirectoryName)\$($_.BaseName)-1.m4v'" #'\blah.ts'
-    & $cmd '--%' '--preset-import-file preset.json' '-v' '-Z "sundaymorning"' '-a 2' '-i' "`"$($_.FullName)`"" '-o' "`"$($_.DirectoryName)\$($_.BaseName)-1.m4v`""
-    #Write-Host $handbrakeCmd
+    }
+    
+    Write-Host $?
+
     break
-    #filter and save content to the original file
-    #$content | Where-Object {$_ -match 'step[49]'} | Set-Content $_.FullName
-
-    #filter and save content to a new file 
-    #$content | Where-Object {$_ -match 'step[49]'} | Set-Content ($_.BaseName + '_out.log')
 
     #TODO log handbrakecli output to txt file
     #better comment script
