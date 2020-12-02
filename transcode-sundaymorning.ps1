@@ -28,19 +28,19 @@ foreach ($tsFile in $tsFiles)
     
     if($LastExitCode -ne 0)
     {
-        Write-Output 'Failed encode; continuing to next' | Out-File
+        Write-Output 'Encode failed; continuing to next' | Out-File
         $exitCode = 1
         continue #if handbrakecli isn't successful don't copy or delete anything, move on to next file
     }
 
-    Write-Output 'Finished encode, copying to tower...' | Out-File
+    Write-Output 'Finished encode, copying to destination folder...' | Out-File
     New-Item -Force $destinationFolder -ItemType "directory" #this will create the folder if it doesn't exist
     
     Copy-Item -Path $outputFileName -Destination $destinationFolder
     Write-Output $? | Out-File
     if ($? -eq $false) #Copy-Item was false
     {
-        Write-Output 'Copy to tower was unsuccessful; continuing to next' | Out-File
+        Write-Output 'Copy failed; continuing to next' | Out-File
         $exitCode = 1
         continue #If copy was unsuccessful then don't delete, move on to next file
     }
@@ -54,12 +54,6 @@ foreach ($tsFile in $tsFiles)
     Rename-Item $outputFileName ($outputFileName + '.old')
 
     break #just do one file for now
-
-    #TODO log handbrakecli output to txt file
-    #better comment script
-    #validate handbrakecli was successful?
-    #copy-item the file to tower, validate success
-    #remove-item the .ts file
 
 }
 

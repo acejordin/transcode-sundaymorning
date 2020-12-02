@@ -6,5 +6,3 @@ Will be run by Windows Task Scheduler on a schedule
 
 [How to export preset json from gui for cli](https://www.truenas.com/community/threads/set-a-custom-preset-for-handbrakecli-in-freenas.58434/)
 
-[--% (Stop Parsing command) is needed in order for powershell to correctly run handbrakecli with the necessary parameters](https://ss64.com/ps/stop-parsing.html)
-nevermind that - easier way found
