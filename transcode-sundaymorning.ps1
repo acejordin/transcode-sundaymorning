@@ -1,13 +1,15 @@
-Write-Output 'Starting transcode-sundaymorning.ps1...' | Out-File
-$path = 'C:\Users\acejo\Videos\TV\CBS Sunday Morning (1979)'
-#$path = 'C:\Users\acejo\Videos\TV\tasteMAKERS (2018)'
-$cmd = './HandBrakeCLI.exe'
-$destinationFolder = 'T:\tv\CBS Sunday Morning (1979)'
-#$destinationFolder = 'C:\Users\acejo\Videos\TV\tasteMAKERS (2018)\Season 02\Transcoded\'
 $LogFileName = 'transcode-sundaymorning-' + (Get-Date -UFormat "%Y-%m-%d").tostring() + '.log'
+$LogFileName = Join-Path -Path $PSScriptRoot -ChildPath $LogFileName
 #Write-Output $LogFileName
 $PSDefaultParameterValues['Out-File:FilePath'] = $LogFileName
 $PSDefaultParameterValues['Out-File:Append'] = $true
+
+Write-Output 'Starting transcode-sundaymorning.ps1...' | Out-File
+$path = 'C:\Users\acejo\Videos\TV\CBS Sunday Morning (1979)'
+#$path = 'C:\Users\acejo\Videos\TV\tasteMAKERS (2018)'
+$cmd = "$PSScriptRoot\HandBrakeCLI.exe"
+$destinationFolder = 'T:\tv\CBS Sunday Morning (1979)'
+#$destinationFolder = 'C:\Users\acejo\Videos\TV\tasteMAKERS (2018)\Season 02\Transcoded\'
 $exitCode = 0
 
 $tsFiles = @(Get-ChildItem $path -Filter *.ts -Recurse)
@@ -20,7 +22,7 @@ foreach ($tsFile in $tsFiles)
     $destinationFolder = Join-Path -Path $destinationFolder -ChildPath $tsFile.Directory.Name
     #Write-Output $destinationFolder
     Write-Output 'Beginning HandbrakeCLI encode...' | Out-File
-    & $cmd --preset-import-file preset.json -Z sundaymorning --audio-lang-list "English" --all-audio -i "$($tsFile.FullName)" -o "$outputFileName" 2>> $LogFileName
+    & $cmd --preset-import-file $PSScriptRoot\preset.json -Z sundaymorning --audio-lang-list "English" --all-audio -i "$($tsFile.FullName)" -o "$outputFileName" 2>> $LogFileName
     #Write-Output "HandbrakeCLI result: $? $LastExitCode" | Out-File
     #Write-Output "HandbrakeCLI result: $? $LastExitCode" | Out-File
     
@@ -31,19 +33,19 @@ foreach ($tsFile in $tsFiles)
         continue #if handbrakecli isn't successful don't copy or delete anything, move on to next file
     }
 
-    Write-Host 'Finished encode, copying to tower...' | Out-File
+    Write-Output 'Finished encode, copying to tower...' | Out-File
     New-Item -Force $destinationFolder -ItemType "directory" #this will create the folder if it doesn't exist
     
     Copy-Item -Path $outputFileName -Destination $destinationFolder
-    Write-Host $? | Out-File
+    Write-Output $? | Out-File
     if ($? -eq $false) #Copy-Item was false
     {
-        Write-Host 'Copy to tower was unsuccessful; continuing to next' | Out-File
+        Write-Output 'Copy to tower was unsuccessful; continuing to next' | Out-File
         $exitCode = 1
         continue #If copy was unsuccessful then don't delete, move on to next file
     }
 
-    Write-Host 'Renaming .ts and local .m4v' | Out-File
+    Write-Output 'Renaming .ts and local .m4v' | Out-File
     #uncomment these out when sure copy/script is good
     #Remove-Item $tsFile.FullName #delete the .ts file
     #Remove-Item $outputFileName #delete the local .m4v file
