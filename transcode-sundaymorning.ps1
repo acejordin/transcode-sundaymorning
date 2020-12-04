@@ -13,7 +13,7 @@ $destinationFolder = 'T:\tv\CBS Sunday Morning (1979)'
 $exitCode = 0
 
 $tsFiles = @(Get-ChildItem $path -Filter *.ts -Recurse)
-Write-Output "Found $($tsFiles.Length) sundaymornings to encode..." | Out-File
+Write-Output "Found $($tsFiles.Length) sundaymorning(s) to encode..." | Out-File
 foreach ($tsFile in $tsFiles)
 {
     Write-Output "Working on $($tsFile.FullName)..." | Out-File
@@ -33,11 +33,18 @@ foreach ($tsFile in $tsFiles)
         continue #if handbrakecli isn't successful don't copy or delete anything, move on to next file
     }
 
-    Write-Output 'Finished encode, copying to destination folder...' | Out-File
+    Write-Output 'Finished encode...' | Out-File
+    Write-Output "Copying $outputFileName to $destinationFolder" | Out-File
     New-Item -Force $destinationFolder -ItemType "directory" #this will create the folder if it doesn't exist
-    
+    if($? -eq $false)
+    {
+        Write-Output 'New-Item failed to create $destinationFolder' | Out-File
+        $exitCode = 1
+        continue
+    }
+
     Copy-Item -Path $outputFileName -Destination $destinationFolder
-    Write-Output $? | Out-File
+    #Write-Output $? | Out-File
     if ($? -eq $false) #Copy-Item was false
     {
         Write-Output 'Copy failed; continuing to next' | Out-File
@@ -45,6 +52,7 @@ foreach ($tsFile in $tsFiles)
         continue #If copy was unsuccessful then don't delete, move on to next file
     }
 
+    Write-Output 'Copy done' | Out-Files
     Write-Output 'Renaming .ts and local .m4v' | Out-File
     #uncomment these out when sure copy/script is good
     #Remove-Item $tsFile.FullName #delete the .ts file
@@ -52,8 +60,6 @@ foreach ($tsFile in $tsFiles)
     #rename them until we start to delete them
     Rename-Item $tsFile.FullName ($tsFile.FullName + '.old')
     Rename-Item $outputFileName ($outputFileName + '.old')
-
-    break #just do one file for now
 
 }
 
