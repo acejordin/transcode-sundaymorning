@@ -14,20 +14,17 @@ $exitCode = 0
 
 $tsFiles = @(Get-ChildItem $path -Filter *.ts -Recurse)
 Write-Output "Found $($tsFiles.Length) sundaymorning(s) to encode..." | Out-File
-foreach ($tsFile in $tsFiles)
-{
+foreach ($tsFile in $tsFiles) {
     Write-Output "Working on $($tsFile.FullName)..." | Out-File
     $outputFileName = Join-Path -Path $($tsFile.DirectoryName) -ChildPath ($tsFile.BaseName + '-1.m4v')
     #Write-Output $outputFileName
-    $destinationFolder = Join-Path -Path $destinationFolder -ChildPath $tsFile.Directory.Name
     #Write-Output $destinationFolder
     Write-Output 'Beginning HandbrakeCLI encode...' | Out-File
     & $cmd --preset-import-file $PSScriptRoot\preset.json -Z sundaymorning --audio-lang-list "English" --all-audio -i "$($tsFile.FullName)" -o "$outputFileName" 2>> $LogFileName
     #Write-Output "HandbrakeCLI result: $? $LastExitCode" | Out-File
     #Write-Output "HandbrakeCLI result: $? $LastExitCode" | Out-File
     
-    if($LastExitCode -ne 0)
-    {
+    if ($LastExitCode -ne 0) {
         Write-Output 'Encode failed; continuing to next' | Out-File
         $exitCode = 1
         continue #if handbrakecli isn't successful don't copy or delete anything, move on to next file
@@ -35,9 +32,10 @@ foreach ($tsFile in $tsFiles)
 
     Write-Output 'Finished encode...' | Out-File
     Write-Output "Copying $outputFileName to $destinationFolder" | Out-File
+    $destinationFolder = 'T:\tv\CBS Sunday Morning (1979)'
+    $destinationFolder = Join-Path -Path $destinationFolder -ChildPath $tsFile.Directory.Name
     New-Item -Force $destinationFolder -ItemType "directory" #this will create the folder if it doesn't exist
-    if($? -eq $false)
-    {
+    if ($? -eq $false) {
         Write-Output 'New-Item failed to create $destinationFolder' | Out-File
         $exitCode = 1
         continue
@@ -45,14 +43,13 @@ foreach ($tsFile in $tsFiles)
 
     Copy-Item -Path $outputFileName -Destination $destinationFolder
     #Write-Output $? | Out-File
-    if ($? -eq $false) #Copy-Item was false
-    {
+    if ($? -eq $false) { #Copy-Item was false
         Write-Output 'Copy failed; continuing to next' | Out-File
         $exitCode = 1
         continue #If copy was unsuccessful then don't delete, move on to next file
     }
 
-    Write-Output 'Copy done' | Out-Files
+    Write-Output 'Copy done' | Out-File
     Write-Output 'Renaming .ts and local .m4v' | Out-File
     #uncomment these out when sure copy/script is good
     #Remove-Item $tsFile.FullName #delete the .ts file
