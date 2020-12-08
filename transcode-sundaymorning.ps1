@@ -37,20 +37,22 @@ foreach ($tsFile in $tsFiles) {
     }
 
     Write-Output 'Finished encode...' | Out-File
-    Write-Output "Copying $outputFileName to $destinationFolder" | Out-File
-    $destinationFolder = 'T:\tv\CBS Sunday Morning (1979)'
+    $destinationFolder = '\\TOWER\share\media\tv\CBS Sunday Morning (1979)'
+    #$destinationFolder = 'T:\tv\CBS Sunday Morning (1979)'
     #$destinationFolder = 'C:\Users\acejo\Videos\TV\tasteMAKERS (2018)\Season 02\Transcoded\'
     $destinationFolder = Join-Path -Path $destinationFolder -ChildPath $tsFile.Directory.Name
     Write-Host $destinationFolder
+    Write-Output "Attmpting to create $destinationFolder if it doesn't exist" | Out-File
     New-Item -Path $destinationFolder -ItemType "directory" -Force | Out-File #this will create the folder if it doesn't exist
     #New-item -Name "ccmsetup" -Type Folder -Path "c:\temp"
     if ($? -eq $false) {
-        Write-Output 'New-Item failed to create $destinationFolder' | Out-File
+        Write-Output "New-Item failed to create $destinationFolder" | Out-File
         $exitCode = 1
         continue
     }
 
     Write-Host $destinationFolder 
+    Write-Output "Copying $outputFileName to $destinationFolder" | Out-File
     Copy-Item -Path $outputFileName -Destination $destinationFolder | Out-File
     #Write-Output $? | Out-File
     if ($? -eq $false) { #Copy-Item was false
