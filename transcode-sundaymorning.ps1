@@ -1,5 +1,11 @@
 $LogFileName = 'transcode-sundaymorning-' + (Get-Date -UFormat "%Y-%m-%d").tostring() + '.log'
 $LogFileName = Join-Path -Path $PSScriptRoot -ChildPath $LogFileName
+
+$ErrLogFileName = 'transcode-sundaymorning-error-' + (Get-Date -UFormat "%Y-%m-%d").tostring() + '.log'
+$ErrLogFileName = Join-Path -Path $PSScriptRoot -ChildPath $LogFileName
+
+#Start-Transcript -Path $LogFileName -Append #-IncludeInvocationHeader
+
 #Write-Output $LogFileName
 $PSDefaultParameterValues['Out-File:FilePath'] = $LogFileName
 $PSDefaultParameterValues['Out-File:Append'] = $true
@@ -8,7 +14,7 @@ Write-Output 'Starting transcode-sundaymorning.ps1...' | Out-File
 $path = 'C:\Users\acejo\Videos\TV\CBS Sunday Morning (1979)'
 #$path = 'C:\Users\acejo\Videos\TV\tasteMAKERS (2018)'
 $cmd = "$PSScriptRoot\HandBrakeCLI.exe"
-$destinationFolder = 'T:\tv\CBS Sunday Morning (1979)'
+#$destinationFolder = 'T:\tv\CBS Sunday Morning (1979)'
 #$destinationFolder = 'C:\Users\acejo\Videos\TV\tasteMAKERS (2018)\Season 02\Transcoded\'
 $exitCode = 0
 
@@ -33,15 +39,19 @@ foreach ($tsFile in $tsFiles) {
     Write-Output 'Finished encode...' | Out-File
     Write-Output "Copying $outputFileName to $destinationFolder" | Out-File
     $destinationFolder = 'T:\tv\CBS Sunday Morning (1979)'
+    #$destinationFolder = 'C:\Users\acejo\Videos\TV\tasteMAKERS (2018)\Season 02\Transcoded\'
     $destinationFolder = Join-Path -Path $destinationFolder -ChildPath $tsFile.Directory.Name
-    New-Item -Force $destinationFolder -ItemType "directory" #this will create the folder if it doesn't exist
+    Write-Host $destinationFolder
+    New-Item -Path $destinationFolder -ItemType "directory" -Force | Out-File #this will create the folder if it doesn't exist
+    #New-item -Name "ccmsetup" -Type Folder -Path "c:\temp"
     if ($? -eq $false) {
         Write-Output 'New-Item failed to create $destinationFolder' | Out-File
         $exitCode = 1
         continue
     }
 
-    Copy-Item -Path $outputFileName -Destination $destinationFolder
+    Write-Host $destinationFolder 
+    Copy-Item -Path $outputFileName -Destination $destinationFolder | Out-File
     #Write-Output $? | Out-File
     if ($? -eq $false) { #Copy-Item was false
         Write-Output 'Copy failed; continuing to next' | Out-File
@@ -55,11 +65,13 @@ foreach ($tsFile in $tsFiles) {
     #Remove-Item $tsFile.FullName #delete the .ts file
     #Remove-Item $outputFileName #delete the local .m4v file
     #rename them until we start to delete them
-    Rename-Item $tsFile.FullName ($tsFile.FullName + '.old')
-    Rename-Item $outputFileName ($outputFileName + '.old')
+    Rename-Item $tsFile.FullName ($tsFile.FullName + '.old') | Out-File
+    Rename-Item $outputFileName ($outputFileName + '.old') | Out-File
 
 }
 
 Write-Output 'transcode-sundaymorning.ps1 finished' | Out-File
 
 exit $exitCode
+
+#Stop-Transcript
