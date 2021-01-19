@@ -1,8 +1,8 @@
 $LogFileName = 'transcode-sundaymorning-' + (Get-Date -UFormat "%Y-%m-%d").tostring() + '.log'
 $LogFileName = Join-Path -Path $PSScriptRoot -ChildPath $LogFileName
 
-$ErrLogFileName = 'transcode-sundaymorning-error-' + (Get-Date -UFormat "%Y-%m-%d").tostring() + '.log'
-$ErrLogFileName = Join-Path -Path $PSScriptRoot -ChildPath $LogFileName
+#$ErrLogFileName = 'transcode-sundaymorning-error-' + (Get-Date -UFormat "%Y-%m-%d").tostring() + '.log'
+#$ErrLogFileName = Join-Path -Path $PSScriptRoot -ChildPath $LogFileName
 
 #Start-Transcript -Path $LogFileName -Append #-IncludeInvocationHeader
 
@@ -11,7 +11,7 @@ $PSDefaultParameterValues['Out-File:FilePath'] = $LogFileName
 $PSDefaultParameterValues['Out-File:Append'] = $true
 
 Write-Output 'Starting transcode-sundaymorning.ps1...' | Out-File
-$path = 'C:\Users\acejo\Videos\TV\CBS Sunday Morning (1979)'
+$path = 'C:\Users\acejo\Videos\TV\CBS News Sunday Morning (1979)'
 #$path = 'C:\Users\acejo\Videos\TV\tasteMAKERS (2018)'
 $cmd = "$PSScriptRoot\HandBrakeCLI.exe"
 #$destinationFolder = 'T:\tv\CBS Sunday Morning (1979)'
@@ -37,7 +37,7 @@ foreach ($tsFile in $tsFiles) {
     }
 
     Write-Output 'Finished encode...' | Out-File
-    $destinationFolder = '\\TOWER\share\media\tv\CBS Sunday Morning (1979)'
+    $destinationFolder = '\\TOWER\share\media\tv\CBS News Sunday Morning (1979)'
     #$destinationFolder = 'T:\tv\CBS Sunday Morning (1979)'
     #$destinationFolder = 'C:\Users\acejo\Videos\TV\tasteMAKERS (2018)\Season 02\Transcoded\'
     $destinationFolder = Join-Path -Path $destinationFolder -ChildPath $tsFile.Directory.Name
